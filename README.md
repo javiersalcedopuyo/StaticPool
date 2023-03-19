@@ -1,5 +1,5 @@
 # StaticPool
-![Unit Testing](https://github.com/javiersalcedopuyo/StaticPool/workflows/Swift/badge.svg)
+![Unit Testing](https://github.com/javiersalcedopuyo/StaticPool/workflows/Unit%20Tests/badge.svg)
 
 A fixed size pool of objects with no dynamic memory allocation.
 Provides validated access to its elements through opaque handles.
