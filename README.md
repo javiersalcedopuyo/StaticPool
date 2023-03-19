@@ -3,6 +3,8 @@
 A fixed size pool of objects with no dynamic memory allocation.
 Provides validated access to its elements through opaque handles.
 
+Inspired by [this blog article](https://floooh.github.io/2018/06/17/handles-vs-pointers.html).
+
 ---
 
 ### `init(withSize size: Int)`
