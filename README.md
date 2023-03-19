@@ -30,17 +30,38 @@ Gets the item in the slot pointed by the provided handle
 - *Throws*:
     - `StaticPoolError.AccessOutOfBounds`: if the handle points outside the pool
     - `StaticPoolError.InvalidHandle`: If the handle points to an empty slot
+    - `StaticPoolError.DanglingHandle`: If the handle doesn't match the current allocation of that slot
 
 ---
 
-###  `release(handle: Handle)`
+### `getReusableSlotCount() -> Int`
+Returns the number of slots that can still be reused. If this gets to 0, you might want to consider resetting some slots.
+- *Returns*: The number of slots that can still be reused
+
+---
+
+###  `release(handle: Handle) throws`
 Releases the slot pointed by the provided handle.
 - *Parameters*:
     - handle:
+- *Throws*:
+    - `StaticPoolError.DanglingHandle`: If the handle doesn't match the current allocation of that slot
 
 ---
 
 ### `release(index: Int)`
 Releases the slot at the provided index.
 - *Parameters*:
-    - handle:
+    - index:
+
+---
+
+### `reset()`
+Releases all slots and resets their allocation counters. This means that any dangling handles pointing to this slot might act as if they were still valid, so this must be used with care.
+
+---
+
+### `reset(slot: Int)`
+Releases the slot at the provided index and resets its allocation counter. This means that any dangling handles pointing to this slot might act as if they were still valid, so this must be used with care.
+- *Parameters*:
+    - slot:

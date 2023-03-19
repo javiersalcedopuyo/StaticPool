@@ -14,47 +14,83 @@ final class StaticPoolTests: XCTestCase
 
     func testAddAndGetNotNil()
     {
-        let handle = try? pool.add( Foo() )
+        let handle = try! pool.add( Foo() )
 
-        XCTAssertNoThrow( try pool.get(handle!) )
+        XCTAssertNoThrow( try pool.get(handle) )
     }
 
     func testAddToFullPool()
     {
-        _ = try? pool.add( Foo() )
+        _ = try! pool.add( Foo() )
         XCTAssertThrowsError( try pool.add( Foo() ) )
     }
 
     func testReleaseByIndex()
     {
-        let handle = try? pool.add( Foo() )
+        let handle = try! pool.add( Foo() )
 
         pool.release(index: 0)
-        XCTAssertThrowsError( try pool.get(handle!) )
+        XCTAssertThrowsError( try pool.get(handle) )
     }
 
     func testReleaseByHandle()
     {
-        let handle = try? pool.add( Foo() )
+        let handle = try! pool.add( Foo() )
 
-        pool.release(handle: handle!)
-        XCTAssertThrowsError( try pool.get(handle!) )
+        XCTAssertNoThrow( try pool.release(handle: handle) )
+        XCTAssertThrowsError( try pool.get(handle) )
     }
 
-    // TODO:
-//    func testGettingDanglingHandle()
-//    {
-//        do
-//        {
-//            let handle = try pool.add( Foo(id: 0) )
-//            pool.release(handle: handle)
-//            _ = try pool.add( Foo(id: 1) )
-//
-//            XCTAssertThrowsError(try pool.get(handle) )
-//        }
-//        catch
-//        {
-//            XCTFail()
-//        }
-//    }
+    func testGettingDanglingHandle()
+    {
+        do
+        {
+            let handle = try pool.add( Foo(id: 0) )
+            try! pool.release(handle: handle)
+            _ = try pool.add( Foo(id: 1) )
+
+            XCTAssertThrowsError(try pool.get(handle) )
+        }
+        catch
+        {
+            XCTFail()
+        }
+    }
+
+    func testDoubleRelease()
+    {
+        do
+        {
+            let handle = try pool.add( Foo(id: 0) )
+            try! pool.release(handle: handle)
+
+            XCTAssertThrowsError(try pool.release(handle: handle) )
+        }
+        catch
+        {
+            XCTFail()
+        }
+    }
+
+    func testResetSlotWithDanglingHandle()
+    {
+        let handle = try! pool.add( Foo(id: 0) )
+        pool.reset(slot: 0)
+        _ = try! pool.add( Foo(id: 1) )
+
+        XCTAssertNoThrow(try pool.get(handle) )
+    }
+
+    func testExhaustingPool()
+    {
+        for _ in 0..<UInt8.max
+        {
+            XCTAssertNotEqual(pool.getReusableSlotCount(), 0)
+            let _ = try! pool.add( Foo() )
+            pool.release(index: 0)
+        }
+
+        XCTAssertEqual(pool.getReusableSlotCount(), 0)
+        XCTAssertThrowsError(try pool.add( Foo() ))
+    }
 }
